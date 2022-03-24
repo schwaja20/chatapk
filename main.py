@@ -16,3 +16,5 @@ while True:
 # koukni se na www.realpython.com
 # umrdej jeste ConnectionRefusedError
 # finally se po projeti excepty pokusi zavrit kod
+
+############ dodelej chatapk #################
