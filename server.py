@@ -17,8 +17,9 @@ logging.info('--> server start OK')
 
 
 
-"""
-import socket,select
+
+import socket
+import select
 
 port = 12345
 socket_list = []
@@ -39,8 +40,8 @@ while True:
             try:
                 data = sock.recv(2048)
                 if data.startswith("#"):
-                    users[data[1:].lower()]=connect
-                    print "User " + data[1:] +" added."
+                    connect = users[data[1:].lower()]
+                    print("User " + data[1:] +" added.")
                     connect.send("Your user detail saved as : "+str(data[1:]))
                 elif data.startswith("@"):
                     users[data[1:data.index(':')].lower()].send(data[data.index(':')+1:])
@@ -48,7 +49,7 @@ while True:
                 continue
 
 server_socket.close()
-"""
+
 
 while True:
     logging.info(input(">"))
