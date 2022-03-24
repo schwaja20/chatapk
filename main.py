@@ -17,4 +17,4 @@ while True:
 # umrdej jeste ConnectionRefusedError
 # finally se po projeti excepty pokusi zavrit kod
 
-############ dodelej chatapk #################
+########################## dodelej chatapk #######################
