@@ -47,9 +47,9 @@ def update_chat(msg, state):
     chatlog.config(state=NORMAL)
     # pridavani zprav
     if state==0:
-        chatlog.insert(END, 'YOU: ' + msg)
+        chatlog.insert(END, 'VY: ' + msg)
     else:
-        chatlog.insert(END, 'OTHER: ' + msg)
+        chatlog.insert(END, 'Typek: ' + msg)
     chatlog.config(state=DISABLED)
     # zobrazeni posledni zpravy
     chatlog.yview(END)
