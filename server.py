@@ -1,4 +1,5 @@
-import threading
+
+"""
 import logging
 
 
@@ -14,42 +15,108 @@ logging.info('Startuji server')
 
 logging.info('--> server start OK')
 
-
-
-
-
-import socket
-import select
-
-port = 12345
-socket_list = []
-users = {}
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server_socket.bind(('',port))
-server_socket.listen(5)
-socket_list.append(server_socket)
-while True:
-    ready_to_read,ready_to_write,in_error = select.select(socket_list,[],[],0)
-    for sock in ready_to_read:
-        if sock == server_socket:
-            connect, addr = server_socket.accept()
-            socket_list.append(connect)
-            connect.send("You are connected from:" + str(addr))
-        else:
-            try:
-                data = sock.recv(2048)
-                if data.startswith("#"):
-                    connect = users[data[1:].lower()]
-                    print("User " + data[1:] +" added.")
-                    connect.send("Your user detail saved as : "+str(data[1:]))
-                elif data.startswith("@"):
-                    users[data[1:data.index(':')].lower()].send(data[data.index(':')+1:])
-            except:
-                continue
-
-server_socket.close()
-
-
 while True:
     logging.info(input(">"))
+"""
+
+from tkinter import *
+from socket import *
+import _thread
+
+# nastaveni spojeni se serverem
+def initialize_server():
+    # nastaveni sockeru
+    s = socket(AF_INET, SOCK_STREAM)
+
+    # detaily
+    host = 'localhost'  ## to use between devices in the same network eg.192.168.1.5
+    port = 1234
+
+    # pripojeni serveru
+    s.bind((host, port))
+    s.listen(1)
+        #potvrzeni pripojeni
+    conn, addr = s.accept()
+
+    return conn
+
+# update a drzeni zprav v chatu
+def update_chat(msg, state):
+    global chatlog
+
+    chatlog.config(state=NORMAL)
+    # pridavani zprav
+    if state==0:
+        chatlog.insert(END, 'YOU: ' + msg)
+    else:
+        chatlog.insert(END, 'OTHER: ' + msg)
+    chatlog.config(state=DISABLED)
+    # zobrazeni posledni zpravy
+    chatlog.yview(END)
+
+# odesilani zprav
+def send():
+    global textbox
+    # ziskani zpravy
+    msg = textbox.get("0.0", END)
+    # update chatu
+    update_chat(msg, 0)
+    # odeslani
+    conn.send(msg.encode('ascii'))
+    textbox.delete("0.0", END)
+
+# prijeti zpravy
+def receive():
+    while 1:
+        try:
+            data = conn.recv(1024)
+            msg = data.decode('ascii')
+            if msg != "":
+                update_chat(msg, 1)
+        except:
+            pass
+
+def press(event):
+    send()
+
+# grafika okna
+def GUI():
+    global chatlog
+    global textbox
+
+    # nastaveni okna
+    gui = Tk()
+    gui.title("Server Chat")
+    gui.geometry("380x430")
+
+    # text space to display messages
+    chatlog = Text(gui, bg='white')
+    chatlog.config(state=DISABLED)
+
+    # tlacitko odeslat
+    sendbutton = Button(gui, bg='white', fg='black', text='SEND', command=send)
+
+    # psani zprav
+    textbox = Text(gui, bg='white')
+
+    # pozicovani chatu a zprav
+    chatlog.place(x=6, y=6, height=386, width=370)
+    textbox.place(x=6, y=401, height=20, width=265)
+    sendbutton.place(x=300, y=401, height=20, width=50)
+
+    # bind pro pouziti enteru
+    textbox.bind("<KeyRelease-Return>", press)
+
+    # create thread to capture messages continuously
+    _thread.start_new_thread(receive, ())
+
+    # loop
+    gui.mainloop()
+
+
+if __name__ == '__main__':
+    chatlog = textbox = None
+    conn = initialize_server()
+    GUI()
+
+
