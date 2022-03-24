@@ -86,10 +86,10 @@ def GUI():
 
     # nastaveni okna
     gui = Tk()
-    gui.title("Server Chat")
+    gui.title("Lide.cz - Server Chat")
     gui.geometry("380x430")
 
-    # text space to display messages
+    # zobrazeni textu
     chatlog = Text(gui, bg='white')
     chatlog.config(state=DISABLED)
 
@@ -107,7 +107,7 @@ def GUI():
     # bind pro pouziti enteru
     textbox.bind("<KeyRelease-Return>", press)
 
-    # create thread to capture messages continuously
+    # zachytavani zprav
     _thread.start_new_thread(receive, ())
 
     # loop
