@@ -3,7 +3,6 @@ import logging
 while True:
     try:
         vstup = int(input('zadej cislo: '))
-        c = "asdasd" * "asdasd"
     except TypeError:
         print("Operaci nelze provest")
     except ValueError:
@@ -13,4 +12,7 @@ while True:
     else:
         print("Gratuluji, str -> int :)")
 
-#try except se pouziva jen v kritickych castech kodu
+# try except se pouziva jen v kritickych castech kodu
+# koukni se na www.realpython.com
+# umrdej jeste ConnectionRefusedError
+# finally se po projeti excepty pokusi zavrit kod
