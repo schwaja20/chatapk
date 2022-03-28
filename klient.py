@@ -1,9 +1,7 @@
 """
 client_socket = socket.socket()
-
 klient = socket.gethostname
 port = 12345
-
 try:
     client_socket.connect((klient, port))
 """
@@ -14,20 +12,22 @@ import _thread
 
 
 # nastaveni spojeni se serverem
-def initialize_client():
+def klient_start():
     # nastaveni sockeru
     s = socket(AF_INET, SOCK_STREAM)
 
     # detaily
-    host = 'localhost'  ## to use between devices in the same network eg.192.168.1.5
+    host = 'localhost'
     port = 1234
-    s.connect((host, port)) #pripojeni
+
+    # pripojeni
+    s.connect((host, port))
 
     return s
 
 
 # update a drzeni zprav v chatu
-def update_chat(msg, state):
+def chat_update(msg, state):
     global chatlog
 
     chatlog.config(state=NORMAL)
@@ -42,12 +42,12 @@ def update_chat(msg, state):
 
 
 # odesilani zprav
-def send():
+def odeslat():
     global textbox
     # ziskani zpravy
     msg = textbox.get("0.0", END)
     # update chatu
-    update_chat(msg, 0)
+    chat_update(msg, 0)
     # odeslani
     s.send(msg.encode('ascii'))
     textbox.delete("0.0", END)
@@ -60,13 +60,13 @@ def receive():
             data = s.recv(1024)
             msg = data.decode('UTF-8')
             if msg != "":
-                update_chat(msg, 1)
+                chat_update(msg, 1)
         except:
             pass
 
 
 def press(event):
-    send()
+    odeslat()
 
 
 # grafika okna
@@ -84,7 +84,7 @@ def GUI():
     chatlog.config(state=DISABLED)
 
     # tlacitko odeslat
-    sendbutton = Button(gui, bg='white', fg='black', text='SEND', command=send)
+    sendbutton = Button(gui, bg='white', fg='black', text='SEND', command=odeslat)
 
     # psani zprav
     textbox = Text(gui, bg='white')
@@ -106,5 +106,5 @@ def GUI():
 
 if __name__ == '__main__':
     chatlog = textbox = None
-    s = initialize_client()
+    s = klient_start()
     GUI()

@@ -1,8 +1,6 @@
 
 """
 import logging
-
-
 logging.basicConfig(
     filemode='w',
     filename='logserver.log',
@@ -10,11 +8,8 @@ logging.basicConfig(
     format='%(asctime)s : %(message)s',
     datefmt='[%Y/%m/%d] %H:%M:%S',
 )
-
 logging.info('Startuji server')
-
 logging.info('--> server start OK')
-
 while True:
     logging.info(input(">"))
 """
@@ -22,26 +17,40 @@ while True:
 from tkinter import *
 from socket import *
 import _thread
+import logging
+
+#logging
+logging.basicConfig(
+    filename='server_log.log',
+    filemode='w',
+    level=logging.DEBUG,
+    format='%(asctime)s : %(message)s',
+    datefmt='[%d/%m/%Y] %H:%M:%S'
+)
+
 
 # nastaveni spojeni se serverem
-def initialize_server():
+def server_start():
     # nastaveni sockeru
     s = socket(AF_INET, SOCK_STREAM)
 
     # detaily
-    host = 'localhost'  ## to use between devices in the same network eg.192.168.1.5
+    host = 'localhost'
     port = 1234
 
     # pripojeni serveru
     s.bind((host, port))
     s.listen(1)
-        #potvrzeni pripojeni
+
+    # potvrzeni pripojeni
     conn, addr = s.accept()
+
+    logging.info('Startuji server')
 
     return conn
 
 # update a drzeni zprav v chatu
-def update_chat(msg, state):
+def chat_update(msg, state):
     global chatlog
 
     chatlog.config(state=NORMAL)
@@ -55,29 +64,30 @@ def update_chat(msg, state):
     chatlog.yview(END)
 
 # odesilani zprav
-def send():
+def odeslat():
     global textbox
     # ziskani zpravy
     msg = textbox.get("0.0", END)
     # update chatu
-    update_chat(msg, 0)
+    chat_update(msg, 0)
     # odeslani
     conn.send(msg.encode('ascii'))
     textbox.delete("0.0", END)
 
 # prijeti zpravy
-def receive():
+def prijem():
     while 1:
         try:
             data = conn.recv(1024)
             msg = data.decode('ascii')
             if msg != "":
-                update_chat(msg, 1)
+                chat_update(msg, 1)
         except:
             pass
 
-def press(event):
-    send()
+#definovani pro moznost pouziti tlacitka enter
+def enter(event):
+    odeslat()
 
 # grafika okna
 def GUI():
@@ -94,7 +104,7 @@ def GUI():
     chatlog.config(state=DISABLED)
 
     # tlacitko odeslat
-    sendbutton = Button(gui, bg='white', fg='black', text='SEND', command=send)
+    sendbutton = Button(gui, bg='white', fg='black', text='SEND', command=odeslat())
 
     # psani zprav
     textbox = Text(gui, bg='white')
@@ -105,10 +115,10 @@ def GUI():
     sendbutton.place(x=300, y=401, height=20, width=50)
 
     # bind pro pouziti enteru
-    textbox.bind("<KeyRelease-Return>", press)
+    textbox.bind("<KeyRelease-Return>", enter())
 
     # zachytavani zprav
-    _thread.start_new_thread(receive, ())
+    _thread.start_new_thread(prijem, ())
 
     # loop
     gui.mainloop()
@@ -116,7 +126,5 @@ def GUI():
 
 if __name__ == '__main__':
     chatlog = textbox = None
-    conn = initialize_server()
+    conn = server_start()
     GUI()
-
-
