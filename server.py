@@ -104,7 +104,7 @@ def GUI():
     chatlog.config(state=DISABLED)
 
     # tlacitko odeslat
-    sendbutton = Button(gui, bg='white', fg='black', text='SEND', command=odeslat())
+    sendbutton = Button(gui, bg='white', fg='black', text='SEND', command=odeslat)
 
     # psani zprav
     textbox = Text(gui, bg='white')
@@ -115,7 +115,7 @@ def GUI():
     sendbutton.place(x=300, y=401, height=20, width=50)
 
     # bind pro pouziti enteru
-    textbox.bind("<KeyRelease-Return>", enter())
+    textbox.bind("<KeyRelease-Return>", enter)
 
     # zachytavani zprav
     _thread.start_new_thread(prijem, ())

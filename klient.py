@@ -11,7 +11,7 @@ from socket import *
 import _thread
 
 
-# nastaveni spojeni se serverem
+# nastaveni spojeni klienta se serverem
 def klient_start():
     # nastaveni sockeru
     s = socket(AF_INET, SOCK_STREAM)
@@ -54,7 +54,7 @@ def odeslat():
 
 
 # prijeti zpravy
-def receive():
+def prijem():
     while 1:
         try:
             data = s.recv(1024)
@@ -64,7 +64,7 @@ def receive():
         except:
             pass
 
-
+#definovani pro moznost pouziti tlacitka enter
 def press(event):
     odeslat()
 
@@ -98,7 +98,7 @@ def GUI():
     textbox.bind("<KeyRelease-Return>", press)
 
     # zachytavani zprav
-    _thread.start_new_thread(receive, ())
+    _thread.start_new_thread(prijem, ())
 
     # loop
     gui.mainloop()
