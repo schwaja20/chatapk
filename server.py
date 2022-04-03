@@ -1,25 +1,11 @@
-
-"""
-import logging
-logging.basicConfig(
-    filemode='w',
-    filename='logserver.log',
-    level=logging.DEBUG,
-    format='%(asctime)s : %(message)s',
-    datefmt='[%Y/%m/%d] %H:%M:%S',
-)
-logging.info('Startuji server')
-logging.info('--> server start OK')
-while True:
-    logging.info(input(">"))
-"""
-
+#importy
+import socket
 from tkinter import *
 from socket import *
 import _thread
 import logging
 
-#logging
+#logging config
 logging.basicConfig(
     filename='server_log.log',
     filemode='w',
@@ -31,27 +17,54 @@ logging.basicConfig(
 
 # nastaveni spojeni se serverem
 def server_start():
+
+    logging.info('--> starting server')
     # nastaveni sockeru
-    s = socket(AF_INET, SOCK_STREAM)
+    serversocket = socket(AF_INET, SOCK_STREAM)
 
     # detaily
-    host = 'localhost'
+    host = gethostname()
     port = 2222
 
     # pripojeni serveru
-    s.bind((host, port))
-    s.listen(1)
+    try:
+        serversocket.bind((host, port))
+    except Exception as e:
+        print(" ")
+        print("Error while starting a server:")
+        print(e)
+        print(" ")
 
-    # potvrzeni pripojeni
-    conn, addr = s.accept()
+        logging.error(e)
 
-    logging.info('--> starting server')
+    serversocket.listen()
+    print("Server listening on port", port)
+    logging.info("Server is listening...")
+
+    # potvrzeni pripojeni a zalogovani udalosti
+    conn, addr = serversocket.accept()
+
+    print("Connection established with", addr)
+    logging.info("Connection established with " + str(addr))
 
     return conn
+
+clients = set()
 
 # update a drzeni zprav v chatu
 def chat_update(msg, state):
     global chatlog
+
+    for client in clients:
+        try:
+            client.send(msg.encode('utf-8'))
+        except Exception as Ex:
+            print(" ")
+            print("Error while sending a message:")
+            print(Ex)
+            print(" ")
+
+            logging.error(Ex)
 
     chatlog.config(state=NORMAL)
     # pridavani zprav
@@ -76,7 +89,7 @@ def odeslat():
 
 # prijeti zpravy
 def prijem():
-    while 1:
+    while True:
         try:
             data = conn.recv(1024)
             msg = data.decode('utf8')
@@ -119,7 +132,16 @@ def GUI():
     textbox.bind("<KeyRelease-Return>", enter)
 
     # zachytavani zprav
-    _thread.start_new_thread(prijem, ())
+    try:
+        _thread.start_new_thread(prijem, ())
+        logging.info("--> Klient connected")
+    except Exception as Ex:
+        print(" ")
+        print("An error has occurred")
+        print(Ex)
+        print(" ")
+
+        logging.error(Ex)
 
     # loop
     gui.mainloop()
@@ -130,3 +152,6 @@ if __name__ == '__main__':
     conn = server_start()
     logging.info("--> server start OK")
     GUI()
+else:
+    print("--> Connection failed")
+    logging.info("--> Connection failed")
