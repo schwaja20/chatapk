@@ -1,11 +1,5 @@
-"""
-client_socket = socket.socket()
-klient = socket.gethostname
-port = 12345
-try:
-    client_socket.connect((klient, port))
-"""
-
+#importy
+import socket
 from tkinter import *
 from socket import *
 import _thread
@@ -16,11 +10,15 @@ def klient_start():
     s = socket(AF_INET, SOCK_STREAM)
 
     # detaily
-    host = 'localhost'
+    host = gethostname()
     port = 2222
 
     # pripojeni
-    s.connect((host, port))
+    try:
+        s.connect((host, port))
+    except Exception as CRE:
+        print("Error while connectiong to server:")
+        print(CRE)
 
     return s
 
@@ -103,8 +101,10 @@ def GUI():
     # loop
     gui.mainloop()
 
-
+#konec
 if __name__ == '__main__':
     chatlog = textbox = None
     s = klient_start()
     GUI()
+else:
+    print("--> Connection failed")
